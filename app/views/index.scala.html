@@ -1,0 +1,166 @@
+@(data: Seq[String])
+
+@main {
+
+<h1>Statistics</h1>
+<style>
+    table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+caption {
+
+}
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+
+<div class="tab">
+    <button class="tablinks" onclick="showTab(event, 'static')" id="defaultOpen">Home</button>
+    <button class="tablinks" onclick="showTab(event, 'playerStream')">Player Stats Stream</button>
+    <button class="tablinks" onclick="showTab(event, 'teamStream')">Team Stats Stream</button>
+</div>
+
+<div id="static" class="tabcontent">
+    <table id="staticTable">
+        <h2>Static Data Load Status</h2>
+        <tbody>
+            @for(d <- data) {
+                <tr>
+                    <td>Event Processed with Action ID : @d</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="playerStream" class="tabcontent">
+    <table id="playerStreamTable">
+        <h2>Player Stats</h2>
+        <thead>
+        <th>Player Name</th>
+        <th>Yellow Card Count</th>
+        <th>Red Card Count</th>
+        <th>Foul Count</th>
+        <th>Goals Count</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div id="teamStream" class="tabcontent">
+    <table id="teamStreamTable">
+        <h2>Team Stats</h2>
+        <thead>
+        <th>Team Name</th>
+        <th>Corner Count</th>
+        <th>Own Goal Count</th>
+        <th>Penalty Missed Count</th>
+        <th>Goals Count</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+   if (!!window.EventSource) {
+     var playerStatSource = new EventSource('/player-data?lastLoaded=0');
+     playerStatSource.addEventListener('message', onPlayerMessageHandler);
+
+     var teamStatSource = new EventSource('/team-data?lastLoaded=0');
+     teamStatSource.addEventListener('message', onTeamMessageHandler);
+   } else {
+     $("#body").html("Sorry. This browser doesn't seem to support Server sent event. Check <a href='http://html5test.com/compare/feature/communication-eventSource.html'>html5test</a> for browser compatibility.");
+   }
+
+    function onPlayerMessageHandler(event) {
+       var tbodyRef = document.getElementById('playerStreamTable').getElementsByTagName('tbody')[0];
+       var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
+       newRow.innerHTML = event.data;
+
+       event.target.close();
+       var last = document.getElementById('playerStreamTable').tBodies[0].rows.length;
+       var sourceNew = new EventSource('/player-data?lastLoaded=' + last);
+       sourceNew.addEventListener('message', onPlayerMessageHandler);
+
+    }
+    function onTeamMessageHandler(event) {
+       var tbodyRef = document.getElementById('teamStreamTable').getElementsByTagName('tbody')[0];
+       var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
+       newRow.innerHTML = event.data;
+
+       event.target.close();
+       var last = document.getElementById('teamStreamTable').tBodies[0].rows.length;
+       var sourceNew = new EventSource('/team-data?lastLoaded=' + last);
+       sourceNew.addEventListener('message', onTeamMessageHandler);
+
+    }
+   function showTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    document.getElementById("defaultOpen").click();
+
+</script>
+
+}
