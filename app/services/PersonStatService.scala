@@ -33,4 +33,7 @@ class PersonStatService@Inject()(personStatDbUpdater:PersonStatDbUpdater)(implic
         case _ => Future.successful().toEitherT()
       }
   }
+
+  def deleteForActionId(actionId: String): ResponseT[Unit] =
+    personStatDbUpdater.deleteForActionId(actionId)
 }

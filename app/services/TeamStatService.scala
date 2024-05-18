@@ -33,4 +33,7 @@ class TeamStatService@Inject()(teamStatDbUpdater:TeamStatDbUpdater)(implicit exe
       case _ => Future.successful().toEitherT()
       }
   }
+
+  def deleteForActionId(actionId: String): ResponseT[Unit] =
+    teamStatDbUpdater.deleteForActionId(actionId)
 }

@@ -3,11 +3,10 @@ package db
 import akka.NotUsed
 import akka.stream.scaladsl.Source
 import model.EventAction._
-import model.{team, _}
 import model.person.{PersonData, PersonStats}
 import utils.FutureOps.FutureOps
 import utils.ResponseT
-
+import cats.implicits._
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -17,7 +16,7 @@ class PersonStatDbUpdater@Inject()()(implicit exec: ExecutionContext) {
 
   def updatePersonStat(personData: PersonData): ResponseT[Unit] = {
     personsData = personsData ++ List(personData)
-    Future.successful().toEitherT()
+    Future.successful().toEitherT().map(_ => ())
   }
 
   def getAllPersonStats(): Source[PersonStats, NotUsed] = {
@@ -36,6 +35,10 @@ class PersonStatDbUpdater@Inject()()(implicit exec: ExecutionContext) {
         }.iterator
 
     })
+  }
+  def deleteForActionId(actionId: String): ResponseT[Unit] = {
+    personsData = personsData.filterNot(_.actionId == actionId)
+    Future.successful().toEitherT().map(_ => ())
   }
 }
 

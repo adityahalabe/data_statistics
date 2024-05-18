@@ -4,8 +4,9 @@ import model.input.FootballDataEvent
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import util.BaseSpec
-import utils.APIException.{FieldParsingFailed, MandatoryFieldMissing}
+import utils.APIException.{FieldParsingFailed, MandatoryFieldMissing, RuntimeError}
 import utils.FutureOps.FutureOps
+import utils.ResponseT
 
 import scala.concurrent.Future
 import scala.language.postfixOps
@@ -13,6 +14,8 @@ class EventProcessorSpec extends BaseSpec{
 
   "Event processor" should  {
     "fail if event is missing Mandatory fields" in new MandatoryFieldsMissingFixture {
+      Mockito.when(mockPersonStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
+      Mockito.when(mockTeamStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
       val result = eventProcessor.processEvent(fieldsMissingEvent).await
       result.isLeft mustBe true
       result match {
@@ -22,6 +25,8 @@ class EventProcessorSpec extends BaseSpec{
     }
 
     "fail if event parsing fails due non-parsable date" in new InValidDataFixture {
+      Mockito.when(mockPersonStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
+      Mockito.when(mockTeamStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
       val result = eventProcessor.processEvent(invalidHDateEvent).await
       result.isLeft mustBe true
       result match {
@@ -31,6 +36,8 @@ class EventProcessorSpec extends BaseSpec{
     }
 
     "fail if event parsing fails due to non matching data" in new InValidDataFixture {
+      Mockito.when(mockPersonStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
+      Mockito.when(mockTeamStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
       val result = eventProcessor.processEvent(invalidHomeOrAwayEvent).await
       result.isLeft mustBe true
       result match {
@@ -39,12 +46,22 @@ class EventProcessorSpec extends BaseSpec{
       }
     }
 
+    "revert the changes if one of event processing fails" in new SuccessFixture {
+      Mockito.when(mockPersonStatService.updatePersonStat(any[FootballDataEvent]())).thenReturn(unitResponse)
+      Mockito.when(mockTeamStatService.updateTeamStat(any[FootballDataEvent]())).thenReturn(exceptionResponse)
+      Mockito.when(mockPersonStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
+      Mockito.when(mockTeamStatService.deleteForActionId(any[String]())).thenReturn(unitResponse)
+      val result = eventProcessor.processEvent(validEvent).await
+      result.isLeft mustBe true
+    }
+
     "process event successfully" in new SuccessFixture  {
       Mockito.when(mockPersonStatService.updatePersonStat(any[FootballDataEvent]())).thenReturn(unitResponse)
       Mockito.when(mockTeamStatService.updateTeamStat(any[FootballDataEvent]())).thenReturn(unitResponse)
       val result = eventProcessor.processEvent(validEvent).await
       result.isRight mustBe true
     }
+    
   }
 
   trait BaseFixture{
@@ -52,6 +69,7 @@ class EventProcessorSpec extends BaseSpec{
     val mockTeamStatService = mock[TeamStatService]
     val eventProcessor = new EventProcessor(mockPersonStatService,mockTeamStatService)
     val unitResponse = Future.successful(()).toEitherT()
+    val exceptionResponse: ResponseT[Unit] = ResponseT[Unit](RuntimeError(new RuntimeException("Event saving failed")))
   }
 
   trait MandatoryFieldsMissingFixture extends BaseFixture {

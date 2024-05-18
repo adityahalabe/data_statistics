@@ -3,7 +3,7 @@ package db
 import akka.NotUsed
 import akka.stream.scaladsl.Source
 import model.EventAction._
-import model._
+import cats.implicits._
 import model.team.{TeamData, TeamStats}
 import utils.FutureOps.FutureOps
 import utils.ResponseT
@@ -17,7 +17,7 @@ class TeamStatDbUpdater@Inject()()(implicit exec: ExecutionContext) {
 
   def updateTeamStat(teamData: TeamData): ResponseT[Unit] = {
     teamsData = teamsData ++ List(teamData)
-    Future.successful().toEitherT()
+    Future.successful().toEitherT().map(_ => ())
   }
 
   def getAllTeamStats(): Source[TeamStats, NotUsed] = {
@@ -36,6 +36,10 @@ class TeamStatDbUpdater@Inject()()(implicit exec: ExecutionContext) {
         }.iterator
 
     })
+  }
+  def deleteForActionId(actionId: String): ResponseT[Unit] = {
+    teamsData = teamsData.filterNot(_.actionId == actionId)
+    Future.successful().toEitherT().map(_ => ())
   }
 }
 
