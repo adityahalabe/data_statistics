@@ -8,7 +8,8 @@ import utils.ResponseT
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EventProcessor@Inject()(personStatService:PersonStatService,teamStatService: TeamStatService)(implicit exec: ExecutionContext) {
+class EventProcessor@Inject()(personStatService:PersonStatService,
+                              teamStatService: TeamStatService)(implicit exec: ExecutionContext) {
 
   def processEvent(eventDetails: Map[String,String]): ResponseT[String] = {
     for {

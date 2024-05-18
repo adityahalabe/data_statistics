@@ -1,0 +1,10 @@
+n_actionid,c_competition,n_Matchid,d_date,c_Action,c_Period,n_StartTime,n_Endtime,c_HomeOrAway,n_TeamID,c_Team,n_personid,c_person,c_Function,n_ShirtNr,c_ActionReason,c_actionInfo,n_Subpersonid,c_Subperson
+22039489,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Foul committed,First half,24000,24000,Home,77,ADO Den Haag,1223164,Sheraldo Becker,NULL,NULL,Rough play,NULL,924566,Anouar Kali
+22039490,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Free kick,First half,29000,29000,Away,16,FC Utrecht,924566,Anouar Kali,NULL,NULL,NULL,Left foot,0,NULL
+22024166,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Line-up,Start,NULL,NULL,,0,NULL,917392,Rens Bluemink,Assistant Referee,NULL,NULL,NULL,0,NULL
+22024167,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Line-up,Start,NULL,NULL,,0,NULL,769254,Christiaan Bax,4th Official,NULL,NULL,NULL,0,NULL
+22039635,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Foul committed,First half,558000,558000,Away,16,FC Utrecht,474240,Edson Braafheid,NULL,NULL,Pushing,NULL,664080,Lex Immers
+22039637,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Free kick,First half,588000,588000,Home,77,ADO Den Haag,682493,Donny Gorter,NULL,NULL,NULL,Left foot,0,NULL
+22039823,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Yellow,First half,975000,975000,Home,77,ADO Den Haag,664080,Lex Immers,NULL,NULL,Tackle,NULL,0,NULL
+22039827,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Foul committed,First half,969000,969000,Home,77,ADO Den Haag,664080,Lex Immers,NULL,NULL,Tackle,NULL,924566,Anouar Kali
+22039849,Eredivisie 2017/2018,2174508,11-Aug-2017 19:00,Foul committed,First half,1001000,1001000,Away,16,FC Utrecht,924566,Anouar Kali,NULL,NULL,Rough play,NULL,1223164,Sheraldo Becker
