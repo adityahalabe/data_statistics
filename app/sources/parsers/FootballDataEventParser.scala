@@ -79,6 +79,9 @@ object FootballDataEventParser {
       case Some(a) if (a.toLowerCase == "start") => Right(Some(Start))
       case Some(a) if (a.toLowerCase == "first half") => Right(Some(FirstHalf))
       case Some(a) if (a.toLowerCase == "second half") => Right(Some(SecondHalf))
+      case Some(a) if (a.toLowerCase == "half time") => Right(Some(HalfTime))
+      case Some(value) if value.trim.toLowerCase == "null" => Right(Option.empty[EventPeriod])
+      case Some(_)  => Left[ParsingException,Option[EventPeriod]](FieldParsingFailed("c_Period"))
       case _ => Right(Option.empty[EventPeriod])
     }
   }

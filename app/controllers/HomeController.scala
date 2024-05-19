@@ -35,8 +35,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val eventSource: Source[EventSource.Event, NotUsed] = personStatService
       .getData()
       .drop(lastLoaded)
-      .delay(2 seconds)
-      .map(_.toString)
+      .delay(1 seconds)
+      .map(_.toJson)
       .via(EventSource.flow)
 
     Ok.chunked(eventSource).as(ContentTypes.EVENT_STREAM)
@@ -45,8 +45,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val eventSource: Source[EventSource.Event, NotUsed] = teamStatService
       .getData()
       .drop(lastLoaded)
-      .delay(2 seconds)
-      .map(_.toString)
+      .delay(1 seconds)
+      .map(_.toJson)
       .via(EventSource.flow)
 
     Ok.chunked(eventSource).as(ContentTypes.EVENT_STREAM)

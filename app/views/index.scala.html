@@ -74,7 +74,7 @@ body {font-family: Arial;}
         <tbody>
             @for(d <- data) {
                 <tr>
-                    <td>Event Processed with Action ID : @d</td>
+                    <td>@d</td>
                 </tr>
             }
         </tbody>
@@ -83,7 +83,7 @@ body {font-family: Arial;}
 
 <div id="playerStream" class="tabcontent">
     <table id="playerStreamTable">
-        <h2>Player Stats</h2>
+        <h2>Player Stats (Static delay of 1 second)</h2>
         <thead>
         <th>Player Name</th>
         <th style="color:#FF8000">Yellow Card Count</th>
@@ -98,7 +98,7 @@ body {font-family: Arial;}
 
 <div id="teamStream" class="tabcontent">
     <table id="teamStreamTable">
-        <h2>Team Stats</h2>
+        <h2>Team Stats (Static delay of 1 second)</h2>
         <thead>
         <th>Team Name</th>
         <th>Corner Count</th>
@@ -126,7 +126,15 @@ body {font-family: Arial;}
     function onPlayerMessageHandler(event) {
        var tbodyRef = document.getElementById('playerStreamTable').getElementsByTagName('tbody')[0];
        var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
-       newRow.innerHTML = event.data;
+       var personalData = JSON.parse(event.data);
+       var html = `<tr>
+           <td>${personalData.personName}</td>
+           <td>${personalData.yellowCardCount}</td>
+           <td>${personalData.redCardCount}</td>
+           <td>${personalData.foulCount}</td>
+           <td>${personalData.goalCount}</td>
+       </tr>`;
+       newRow.innerHTML = html;
 
        event.target.close();
        var last = document.getElementById('playerStreamTable').tBodies[0].rows.length;
@@ -137,7 +145,15 @@ body {font-family: Arial;}
     function onTeamMessageHandler(event) {
        var tbodyRef = document.getElementById('teamStreamTable').getElementsByTagName('tbody')[0];
        var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
-       newRow.innerHTML = event.data;
+       var teamStat = JSON.parse(event.data);
+       var html = `<tr>
+           <td>${teamStat.teamName}</td>
+           <td>${teamStat.cornerCount}</td>
+           <td>${teamStat.ownGoalCount}</td>
+           <td>${teamStat.penaltyMissedCount}</td>
+           <td>${teamStat.goalCount}</td>
+       </tr>`;
+       newRow.innerHTML = html;
 
        event.target.close();
        var last = document.getElementById('teamStreamTable').tBodies[0].rows.length;

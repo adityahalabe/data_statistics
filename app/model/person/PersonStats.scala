@@ -1,7 +1,6 @@
 package model.person
 
-import model.output.Html
-import model.output.HtmlTransformers.HtmlTransformer
+import play.api.libs.json.{JsValue, Json}
 
 case class PersonStats(
                         personId: String,
@@ -10,23 +9,13 @@ case class PersonStats(
                         redCardCount: Int,
                         foulCount: Int,
                         goalCount: Int,
-                          )
+                          ){
+  private implicit val implicitTeamStatsWrites = Json.writes[PersonStats]
+  def toJson: JsValue = Json.toJson(this)
+}
 
 object PersonStats {
   def apply(personId: String, personName: String): PersonStats =
     PersonStats(personId, personName,0,0,0,0)
 
-  implicit def htmlTransformer: HtmlTransformer[PersonStats] =
-    (personalData: PersonStats) => {
-      Html(
-        s"""
-           |<tr>
-           |  <td>${personalData.personName}</td>
-           |  <td>${personalData.yellowCardCount}</td>
-           |  <td>${personalData.redCardCount}</td>
-           |  <td>${personalData.foulCount}</td>
-           |  <td>${personalData.goalCount}</td>
-           |</tr>
-       """.stripMargin)
-    }
 }

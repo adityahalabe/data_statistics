@@ -5,9 +5,7 @@ import akka.stream.scaladsl.Source
 import db.PersonStatDbUpdater
 import model.PersonStatAction
 import model.input.FootballDataEvent
-import model.output.Html
-import model.output.HtmlTransformers.HtmlTransformerOps
-import model.person.PersonData
+import model.person.{PersonData, PersonStats}
 import utils.APIException.MandatoryFieldMissing
 import utils.FutureOps.FutureOps
 import utils.ResponseT
@@ -17,11 +15,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PersonStatService@Inject()(personStatDbUpdater:PersonStatDbUpdater)(implicit exec: ExecutionContext) {
 
-  def getData(): Source[Html, NotUsed] = {
-    personStatDbUpdater
-      .getAllPersonStats()
-      .map(_.toHtml)
-  }
+  def getData(): Source[PersonStats, NotUsed] =
+    personStatDbUpdater.getAllPersonStats()
 
   def updatePersonStat(event:FootballDataEvent): ResponseT[Unit] = {
     import event._
