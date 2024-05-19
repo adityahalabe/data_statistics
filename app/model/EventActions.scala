@@ -6,7 +6,7 @@ sealed trait PersonStatAction extends EventAction
 
 sealed trait TeamStatAction extends EventAction
 
-object EventAction{
+object EventAction {
   case object RedCard extends PersonStatAction
 
   case object YellowCard extends PersonStatAction

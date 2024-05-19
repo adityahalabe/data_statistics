@@ -27,7 +27,7 @@ class ETLServiceSpec extends BaseSpec{
       val future = source.take(10).runWith(Sink.seq)
       val result = Await.result(future, 3.seconds)
 
-      result.head mustBe "actionId"
+      result.head mustBe "Event Processed with Action ID :actionId"
     }
   }
 

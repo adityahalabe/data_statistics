@@ -1,20 +1,17 @@
 package controllers
 
 import akka.NotUsed
-import akka.actor.{ActorSystem, Cancellable}
+import akka.actor.ActorSystem
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Keep, Sink, Source}
-
+import akka.stream.scaladsl.{Sink, Source}
 import javax.inject.Inject
 import play.api.http.ContentTypes
 import play.api.libs.EventSource
 import play.api.mvc.ControllerComponents
 import services.{ETLService, PersonStatService, TeamStatService}
-
 import scala.language.postfixOps
 import scala.concurrent.duration._
 import javax.inject._
-import play.api.libs.EventSource.EventDataExtractor.stringEvents
 import play.api.mvc._
 
 @Singleton
