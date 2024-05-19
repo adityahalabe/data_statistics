@@ -32,7 +32,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val eventSource: Source[EventSource.Event, NotUsed] = personStatService
       .getData()
       .drop(lastLoaded)
-      .delay(1 seconds)
+      .delay(500 milliseconds)
       .map(_.toJson)
       .via(EventSource.flow)
 
