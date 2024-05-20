@@ -16,16 +16,12 @@ class PersonStatDbUpdaterSpec extends BaseSpec{
       personStatDbUpdater.updatePersonStat(action1).await
       personStatDbUpdater.updatePersonStat(action2).await
 
-      val stats1: Seq[PersonStats] = Await.result(personStatDbUpdater.getAllPersonStats().runWith(Sink.seq), 3.seconds)
+      val stats1: List[PersonData] = Await.result(personStatDbUpdater.getAllPersonStats(), 3.seconds)
       stats1.size mustBe 2
-      stats1.find(_.personId == "1").get.yellowCardCount mustBe 1
-      personStatDbUpdater.updatePersonStat(action3).await
-
       personStatDbUpdater.deleteForActionId(action2.actionId).await
 
-      val stats2: Seq[PersonStats] = Await.result(personStatDbUpdater.getAllPersonStats().runWith(Sink.seq), 3.seconds)
+      val stats2: List[PersonData] = Await.result(personStatDbUpdater.getAllPersonStats(), 3.seconds)
       stats2.size mustBe 1
-      stats2.find(_.personId == "1").get.yellowCardCount mustBe 2
 
     }
   }

@@ -1,5 +1,3 @@
-@(data: Seq[String])
-
 @main {
 
 <h1>Soccer Data Statistics</h1>
@@ -64,26 +62,50 @@ body {font-family: Arial;}
 
 <div class="tab">
     <button class="tablinks" onclick="showTab(event, 'static')" id="defaultOpen">Home</button>
-    <button class="tablinks" onclick="showTab(event, 'playerStream')">Player Stats Stream</button>
-    <button class="tablinks" onclick="showTab(event, 'teamStream')">Team Stats Stream</button>
+    <button class="tablinks" onclick="showTab(event, 'playerStream')">Player Event Stream</button>
+    <button class="tablinks" onclick="showTab(event, 'teamStream')">Team Event Stream</button>
+    <button class="tablinks" onclick="showTab(event, 'playerStats')">Player Statistics</button>
+    <button class="tablinks" onclick="showTab(event, 'teamStats')">Team Statistics</button>
 </div>
 
 <div id="static" class="tabcontent">
+    <button onclick="loadStaticData(event)" style="font-size: 1.5em;font-weight: bold;">Load Static Data</button>
+
     <table id="staticTable">
-        <h2>Static Data Load Status</h2>
         <tbody>
-            @for(d <- data) {
-                <tr>
-                    <td>@d</td>
-                </tr>
-            }
         </tbody>
     </table>
 </div>
 
 <div id="playerStream" class="tabcontent">
     <table id="playerStreamTable">
-        <h2>Player Stats (Static delay of 0.5 second)</h2>
+        <h2>Player Stats Stream (Static delay of 0.5 second)</h2>
+        <thead>
+            <th>Action ID</th>
+            <th style="color:#FF8000">Action</th>
+            <th>Player Name</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div id="teamStream" class="tabcontent">
+    <table id="teamStreamTable">
+        <h2>Team Stats Stream (Static delay of 0.5 second)</h2>
+        <thead>
+        <th>Action ID</th>
+        <th style="color:#FF0000">Action</th>
+        <th>Team Name</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div id="playerStats" class="tabcontent">
+    <table id="playerStatsTable">
+        <h2>Player Stats</h2>
         <thead>
         <th>Player Name</th>
         <th style="color:#FF8000">Yellow Card Count</th>
@@ -96,9 +118,9 @@ body {font-family: Arial;}
     </table>
 </div>
 
-<div id="teamStream" class="tabcontent">
-    <table id="teamStreamTable">
-        <h2>Team Stats (Static delay of 1 second)</h2>
+<div id="teamStats" class="tabcontent">
+    <table id="teamStatsTable">
+        <h2>Team Stats</h2>
         <thead>
         <th>Team Name</th>
         <th>Corner Count</th>
@@ -114,10 +136,10 @@ body {font-family: Arial;}
 
 <script type="text/javascript" charset="utf-8">
    if (!!window.EventSource) {
-     var playerStatSource = new EventSource('/player-data?lastLoaded=0');
+     var playerStatSource = new EventSource('/players/stat-stream?lastLoaded=0');
      playerStatSource.addEventListener('message', onPlayerMessageHandler);
 
-     var teamStatSource = new EventSource('/team-data?lastLoaded=0');
+     var teamStatSource = new EventSource('/teams/stat-stream?lastLoaded=0');
      teamStatSource.addEventListener('message', onTeamMessageHandler);
    } else {
      $("#body").html("Sorry. This browser doesn't seem to support Server sent event. Check <a href='http://html5test.com/compare/feature/communication-eventSource.html'>html5test</a> for browser compatibility.");
@@ -128,17 +150,15 @@ body {font-family: Arial;}
        var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
        var personalData = JSON.parse(event.data);
        var html = `<tr>
+           <td>${personalData.actionId}</td>
+           <td>${personalData.action}</td>
            <td>${personalData.personName}</td>
-           <td>${personalData.yellowCardCount}</td>
-           <td>${personalData.redCardCount}</td>
-           <td>${personalData.foulCount}</td>
-           <td>${personalData.goalCount}</td>
        </tr>`;
        newRow.innerHTML = html;
 
        event.target.close();
        var last = document.getElementById('playerStreamTable').tBodies[0].rows.length;
-       var sourceNew = new EventSource('/player-data?lastLoaded=' + last);
+       var sourceNew = new EventSource('/players/stat-stream?lastLoaded=' + last);
        sourceNew.addEventListener('message', onPlayerMessageHandler);
 
     }
@@ -147,17 +167,15 @@ body {font-family: Arial;}
        var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
        var teamStat = JSON.parse(event.data);
        var html = `<tr>
+           <td>${teamStat.actionId}</td>
+           <td>${teamStat.action}</td>
            <td>${teamStat.teamName}</td>
-           <td>${teamStat.cornerCount}</td>
-           <td>${teamStat.ownGoalCount}</td>
-           <td>${teamStat.penaltyMissedCount}</td>
-           <td>${teamStat.goalCount}</td>
        </tr>`;
        newRow.innerHTML = html;
 
        event.target.close();
        var last = document.getElementById('teamStreamTable').tBodies[0].rows.length;
-       var sourceNew = new EventSource('/team-data?lastLoaded=' + last);
+       var sourceNew = new EventSource('/teams/stat-stream?lastLoaded=' + last);
        sourceNew.addEventListener('message', onTeamMessageHandler);
 
     }
@@ -173,8 +191,59 @@ body {font-family: Arial;}
       }
       document.getElementById(tabName).style.display = "block";
       evt.currentTarget.className += " active";
+      if(tabName === 'playerStats') {
+        loadPlayerStats();
+      }
+      if(tabName === 'teamStats') {
+        loadTeamStats();
+      }
     }
 
+    function loadStaticData(evt) {
+        $.post( "/load-data", function( data ) {
+            var tbodyRef = document.getElementById('staticTable').getElementsByTagName('tbody')[0];
+            var newRow = tbodyRef.insertRow(tbodyRef.rows.length);
+            var html = `<tr><td>${data}</td></tr>`;
+            newRow.innerHTML = html;
+            loadPlayerStats();
+            loadTeamStats();
+        });
+    }
+
+    function loadPlayerStats() {
+        $.get( "/players/statistics", function( data ) {
+                $("#playerStatsTable tbody").empty();
+                data.forEach((personalData) => {
+                        var htmlRow = `<tr>
+                           <td>${personalData.personName}</td>
+                           <td>${personalData.yellowCardCount}</td>
+                           <td>${personalData.redCardCount}</td>
+                           <td>${personalData.foulCount}</td>
+                           <td>${personalData.goalCount}</td>
+                         </tr>`;
+                         $('#playerStatsTable').append(htmlRow);
+                    }
+                );
+            });
+    }
+
+    function loadTeamStats() {
+     $.get( "/teams/statistics", function( data ) {
+                $("#teamStatsTable tbody").empty();
+                data.forEach((teamStat) => {
+                        var htmlRow = `<tr>
+                           <td>${teamStat.teamName}</td>
+                           <td>${teamStat.cornerCount}</td>
+                           <td>${teamStat.ownGoalCount}</td>
+                           <td>${teamStat.penaltyMissedCount}</td>
+                           <td>${teamStat.goalCount}</td>
+                         </tr>`;
+                         $('#teamStatsTable').append(htmlRow);
+                    }
+                );
+
+            });
+    }
     document.getElementById("defaultOpen").click();
 
 </script>

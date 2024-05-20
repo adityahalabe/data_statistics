@@ -18,24 +18,9 @@ class PersonStatDbUpdater@Inject()()(implicit exec: ExecutionContext) {
     personsData = personsData ++ List(personData)
     Future.successful().toEitherT().map(_ => ())
   }
+  def getAllPersonStats(): Future[List[PersonData]] =
+    Future.successful(personsData)
 
-  def getAllPersonStats(): Source[PersonStats, NotUsed] = {
-    Source.fromIterator(() => {
-      personsData
-        .groupBy(p => (p.personId,p.personName))
-        .map{
-          case (personDetails, eventsPerPerson) => PersonStats(
-            personDetails._1,
-            personDetails._2,
-            eventsPerPerson.count(_.action == YellowCard),
-            eventsPerPerson.count(_.action == RedCard),
-            eventsPerPerson.count(_.action == Foul),
-            eventsPerPerson.count(_.action == Goal),
-          )
-        }.iterator
-
-    })
-  }
   def deleteForActionId(actionId: String): ResponseT[Unit] = {
     personsData = personsData.filterNot(_.actionId == actionId)
     Future.successful().toEitherT().map(_ => ())

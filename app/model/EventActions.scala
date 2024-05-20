@@ -1,5 +1,7 @@
 package model
 
+import play.api.libs.json.{Json, Writes}
+
 sealed trait EventAction
 
 sealed trait PersonStatAction extends EventAction
@@ -22,4 +24,15 @@ object EventAction {
   case object OwnGoal extends PersonStatAction with TeamStatAction
 
   case object PenaltyMissed extends PersonStatAction with TeamStatAction
+
+  implicit object PersonStatActionWrites extends Writes[PersonStatAction] {
+    def writes(action: PersonStatAction) = action match {
+      case a: PersonStatAction => Json.toJson(a.toString)
+    }
+  }
+  implicit object TeamStatActionWrites extends Writes[TeamStatAction] {
+    def writes(action: TeamStatAction) = action match {
+      case a: TeamStatAction => Json.toJson(a.toString)
+    }
+  }
 }

@@ -1,8 +1,7 @@
 package db
 
-import akka.stream.scaladsl.Sink
 import model.EventAction.{OwnGoal, PenaltyMissed}
-import model.team.{TeamData, TeamStats}
+import model.team.TeamData
 import util.BaseSpec
 
 import scala.concurrent.Await
@@ -17,16 +16,13 @@ class TeamStatDbUpdaterSpec extends BaseSpec{
       teamStatDbUpdater.updateTeamStat(action1).await
       teamStatDbUpdater.updateTeamStat(action2).await
 
-      val stats1: Seq[TeamStats] = Await.result(teamStatDbUpdater.getAllTeamStats().runWith(Sink.seq), 3.seconds)
+      val stats1: Seq[TeamData] = Await.result(teamStatDbUpdater.getAllTeamStats, 3.seconds)
       stats1.size mustBe 2
-      stats1.find(_.teamId == "1").get.ownGoalCount mustBe 1
-      teamStatDbUpdater.updateTeamStat(action3).await
 
       teamStatDbUpdater.deleteForActionId(action2.actionId).await
 
-      val stats2: Seq[TeamStats] = Await.result(teamStatDbUpdater.getAllTeamStats().runWith(Sink.seq), 3.seconds)
+      val stats2: Seq[TeamData] = Await.result(teamStatDbUpdater.getAllTeamStats, 3.seconds)
       stats2.size mustBe 1
-      stats2.find(_.teamId == "1").get.ownGoalCount mustBe 2
 
     }
   }

@@ -10,7 +10,7 @@ case class PersonStats(
                         foulCount: Int,
                         goalCount: Int,
                           ){
-  private implicit val implicitTeamStatsWrites = Json.writes[PersonStats]
+  private implicit val implicitPersonStatsWrites = Json.writes[PersonStats]
   def toJson: JsValue = Json.toJson(this)
 }
 

@@ -1,10 +1,7 @@
 package db
 
-import akka.NotUsed
-import akka.stream.scaladsl.Source
-import model.EventAction._
 import cats.implicits._
-import model.team.{TeamData, TeamStats}
+import model.team.TeamData
 import utils.FutureOps.FutureOps
 import utils.ResponseT
 
@@ -20,22 +17,8 @@ class TeamStatDbUpdater@Inject()()(implicit exec: ExecutionContext) {
     Future.successful().toEitherT().map(_ => ())
   }
 
-  def getAllTeamStats(): Source[TeamStats, NotUsed] = {
-    Source.fromIterator(() => {
-      teamsData
-        .groupBy(p => (p.teamId,p.teamName))
-        .map{
-          case (teamDetails, eventsPerTeam) => TeamStats(
-            teamDetails._1,
-            teamDetails._2,
-            eventsPerTeam.count(_.action == Corner),
-            eventsPerTeam.count(_.action == OwnGoal),
-            eventsPerTeam.count(_.action == PenaltyMissed),
-            eventsPerTeam.count(_.action == Goal),
-          )
-        }.iterator
-
-    })
+  def getAllTeamStats: Future[List[TeamData]] = {
+    Future.successful(teamsData)
   }
   def deleteForActionId(actionId: String): ResponseT[Unit] = {
     teamsData = teamsData.filterNot(_.actionId == actionId)

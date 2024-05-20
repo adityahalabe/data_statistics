@@ -15,4 +15,5 @@ object DateUtil {
       LocalDateTime.parse(stringDate, formatter).atZone(ZoneId.systemDefault())
     }
   }
+  def now: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern(excelDateTimeFormat))
 }
